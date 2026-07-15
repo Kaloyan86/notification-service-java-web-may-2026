@@ -5,7 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
+import app.exception.InvalidApiKeyException;
+import app.exception.MissingApiKeyException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,26 +26,21 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        try{
-            String apiKey = request.getHeader(X_API_KEY);
+        String apiKey = request.getHeader(X_API_KEY);
 
-            if (apiKey == null ||  apiKey.isBlank()) {
-                throw new BadCredentialsException("Missing API Key header!");
-            }
-
-            if (!apiKey.equals(validApiKey)) {
-                throw new BadCredentialsException("Invalid API Key!");
-            }
-
-            Authentication authentication = new ApiKeyAuthentication(apiKey);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            filterChain.doFilter(request, response);
-
-        }catch(BadCredentialsException e){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(e.getMessage());
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new MissingApiKeyException("Missing API Key header!");
         }
+
+        if (!apiKey.equals(validApiKey)) {
+            throw new InvalidApiKeyException("Invalid API Key!");
+        }
+
+        Authentication authentication = new ApiKeyAuthentication(apiKey);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        filterChain.doFilter(request, response);
+
 
     }
 }

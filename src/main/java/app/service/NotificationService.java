@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static app.web.mapper.NotificationMapper.toNotificationResponse;
+import app.exception.NotificationDisabledException;
 
 @Slf4j
 @Service
@@ -34,7 +35,7 @@ public class NotificationService {
                 .getById(UUID.fromString(request.getUserId()));
 
         if (!notificationPreference.isEnabled()) {
-            throw new IllegalArgumentException(
+            throw new NotificationDisabledException(
                     "User with id [%s] has turned off their notifications.".formatted(request.getUserId()));
         }
 
@@ -82,7 +83,7 @@ public class NotificationService {
                 .getById(UUID.fromString(userId));
 
         if (!notificationPreference.isEnabled()) {
-            throw new IllegalArgumentException(
+            throw new NotificationDisabledException(
                     "User with id [%s] has turned off their notifications.".formatted(userId));
         }
 
