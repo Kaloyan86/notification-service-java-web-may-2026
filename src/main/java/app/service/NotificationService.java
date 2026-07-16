@@ -1,5 +1,6 @@
 package app.service;
 
+import app.exception.NotificationDisabledException;
 import app.model.Notification;
 import app.model.NotificationPreference;
 import app.model.NotificationStatus;
@@ -34,7 +35,7 @@ public class NotificationService {
                 .getById(UUID.fromString(request.getUserId()));
 
         if (!notificationPreference.isEnabled()) {
-            throw new IllegalArgumentException(
+            throw new NotificationDisabledException(
                     "User with id [%s] has turned off their notifications.".formatted(request.getUserId()));
         }
 
@@ -82,7 +83,7 @@ public class NotificationService {
                 .getById(UUID.fromString(userId));
 
         if (!notificationPreference.isEnabled()) {
-            throw new IllegalArgumentException(
+            throw new NotificationDisabledException(
                     "User with id [%s] has turned off their notifications.".formatted(userId));
         }
 
