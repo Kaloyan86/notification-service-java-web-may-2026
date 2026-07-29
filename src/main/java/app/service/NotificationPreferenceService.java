@@ -4,7 +4,6 @@ import app.model.NotificationPreference;
 import app.repository.NotificationPreferenceRepository;
 import app.web.dto.NotificationPreferenceRequest;
 import app.web.dto.NotificationPreferenceResponse;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,11 +15,9 @@ import static app.web.mapper.NotificationPreferenceMapper.toNotificationPreferen
 public class NotificationPreferenceService {
 
     private final NotificationPreferenceRepository preferenceRepository;
-    private final ResourcePatternResolver resourcePatternResolver;
 
-    public NotificationPreferenceService(NotificationPreferenceRepository preferenceRepository, ResourcePatternResolver resourcePatternResolver) {
+    public NotificationPreferenceService(NotificationPreferenceRepository preferenceRepository) {
         this.preferenceRepository = preferenceRepository;
-        this.resourcePatternResolver = resourcePatternResolver;
     }
 
     public NotificationPreferenceResponse upsert(NotificationPreferenceRequest request) {
@@ -53,7 +50,19 @@ public class NotificationPreferenceService {
     }
 
     public NotificationPreference getById(UUID id) {
-       return preferenceRepository.findByUserId(id)
-               .orElseThrow(() -> new IllegalArgumentException("Notification preference not found"));
+        return preferenceRepository.findByUserId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Notification preference not found"));
+    }
+
+    public NotificationPreferenceResponse getNotificationPreferenceById(UUID id) {
+        return toNotificationPreferenceResponse(getById(id));
+    }
+
+    public NotificationPreferenceResponse changeNotificationPreference(UUID userId, boolean enabled) {
+
+        NotificationPreference notificationPreference = getById(userId);
+        notificationPreference.setEnabled(enabled);
+
+        return toNotificationPreferenceResponse(preferenceRepository.save(notificationPreference));
     }
 }

@@ -8,12 +8,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/notifications/preferences")
 @RequiredArgsConstructor
 public class NotificationPreferenceController {
 
     private final NotificationPreferenceService notificationPreferenceService;
+
+    @GetMapping
+    public ResponseEntity<NotificationPreferenceResponse> getNotificationPreference(@RequestParam("userId") String userId) {
+        NotificationPreferenceResponse notificationPreference = notificationPreferenceService
+                .getNotificationPreferenceById(UUID.fromString(userId));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(notificationPreference);
+    }
 
     @PostMapping
     public ResponseEntity<NotificationPreferenceResponse> upsertPreference(
@@ -24,6 +35,18 @@ public class NotificationPreferenceController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .body(response);
+    }
+
+    @PutMapping()
+    public ResponseEntity<NotificationPreferenceResponse> changeNotificationPreference(
+            @RequestParam(name = "userId") UUID userId,
+            @RequestParam(name = "enabled") boolean enabled) {
+
+        NotificationPreferenceResponse response = notificationPreferenceService.changeNotificationPreference(userId, enabled);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(response);
     }
 }
